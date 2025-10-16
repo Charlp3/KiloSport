@@ -10,118 +10,81 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
 
 <style>
-  /* ===== Palette Jaune / Ocre — Thème clair ===== */
   :root{
-    --bg: #fff9e6;          /* fond clair crème */
-    --surface: #fff4c7;     /* panneaux */
-    --border: #f1d37f;      /* bordure sable */
-    --text: #2b1c00;        /* texte foncé chaleureux */
-    --muted: #6e5b2a;       /* texte secondaire */
-    --primary: #ffcc00;     /* jaune vif */
-    --primary-2: #d79b00;   /* ocre */
-    --primary-3: #b07c00;   /* ocre foncé */
-    --good: #0f9d58;        /* vert variation */
-    --bad: #d93025;         /* rouge variation */
-    --warn: #f59e0b;        /* jaune orangé (IMC) */
-    --radius: 14px;
-    --radius-sm: 10px;
-    --shadow: 0 8px 18px rgba(176,124,0,.12);
+    --bg:#fff9e6; --surface:#fff4c7; --surface-2:#fffdf2; --border:#f1d37f;
+    --text:#2b1c00; --muted:#6e5b2a;
+    --primary:#ffcc00; --primary-2:#d79b00;
+    --good:#0f9d58; --bad:#d93025; --warn:#f59e0b;
+    --radius:14px; --radius-sm:10px; --shadow:0 8px 18px rgba(176,124,0,.12);
   }
-
   *{ box-sizing:border-box }
   html,body{ height:100% }
   body{
     margin:0; color:var(--text);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
     background:
       radial-gradient(900px 450px at 10% -10%, rgba(255,204,0,.25), transparent 70%),
       radial-gradient(700px 380px at 110% 0%, rgba(215,155,0,.18), transparent 60%),
-      linear-gradient(180deg, #fffbe6, var(--bg));
+      linear-gradient(180deg,#fffbe6,var(--bg));
   }
   .wrap{ max-width:1100px; margin:20px auto 40px; padding:0 16px }
 
-  /* App bar */
   header.appbar{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:14px 18px; background: var(--surface);
-    border:1px solid var(--border); border-radius:var(--radius);
-    box-shadow: var(--shadow);
+    padding:14px 18px; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow);
   }
   .brand{ display:flex; gap:14px; align-items:center }
   .logo{
-    width:48px; height:48px; border-radius:12px; overflow:hidden;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    display:grid; place-items:center; color:#2b1c00; font-weight:900; letter-spacing:.5px;
-    box-shadow: inset 0 0 8px rgba(255,255,255,.4), 0 8px 16px rgba(213,158,0,.18);
+    width:56px; height:56px; border-radius:14px; overflow:hidden;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    display:grid; place-items:center;
+    box-shadow:inset 0 0 8px rgba(255,255,255,.4), 0 8px 16px rgba(213,158,0,.18);
   }
-  .logo img{ width:100%; height:100%; object-fit:cover; display:none }
-  .logo.has-image img{ display:block }
-  .logo.has-image .initials{ display:none }
   .titles h1{ margin:0; font-size:1.35rem; font-weight:850 }
   .titles .meta{ margin-top:2px; color:var(--muted); font-size:.92rem }
-  .version-badge{
-    padding:4px 10px; border-radius:999px; font-size:.82rem;
-    background: #ffe071;
-    color:#2b1c00; border:1px solid #dfb43e; font-weight:800;
-  }
+  .version-badge{ padding:4px 10px; border-radius:999px; font-size:.82rem; background:#ffe071; color:#2b1c00; border:1px solid #dfb43e; font-weight:800 }
 
-  /* Tabs */
   .tabs{ margin-top:14px; display:flex; gap:10px; flex-wrap:wrap }
   .tab-btn{
-    appearance:none; border:none; cursor:pointer; color:var(--text);
-    background: #fff6d4; border:1px solid var(--border);
-    padding:10px 14px; border-radius:999px; transition:.15s ease; font-weight:700;
+    appearance:none; border:1px solid var(--border); background:#fff6d4; color:var(--text);
+    padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer
   }
   .tab-btn[aria-selected="true"]{
-    background: linear-gradient(135deg, #ffe37a, #ffd24d);
-    border-color: #dfb43e; box-shadow: 0 8px 16px rgba(213,158,0,.18), inset 0 0 0 1px #fff4cc;
+    background:linear-gradient(135deg,#ffe37a,#ffd24d);
+    border-color:#dfb43e; box-shadow:0 8px 16px rgba(213,158,0,.18), inset 0 0 0 1px #fff4cc;
   }
-
   section.tab{
-    display:none; margin-top:12px; padding:16px;
-    background: var(--surface); border:1px solid var(--border);
-    border-radius:var(--radius); box-shadow:var(--shadow);
+    display:none; margin-top:12px; padding:16px; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow)
   }
   section.tab.active{ display:block }
 
-  /* Cards & forms */
   .grid{ display:grid; gap:12px }
-  @media (min-width: 900px){ .grid.col-2{ grid-template-columns: 1.1fr .9fr } }
-  .card{
-    background:#fffdf2;
-    border:1px solid #f3d98c;
-    border-radius: var(--radius-sm); padding:12px;
-  }
+  @media (min-width:900px){ .grid.col-2{ grid-template-columns: 1.1fr .9fr } }
+  .card{ background:var(--surface-2); border:1px solid #f3d98c; border-radius:var(--radius-sm); padding:12px }
   label{ display:block; font-size:.95rem; color:var(--muted); margin-bottom:6px }
-  input[type="date"], input[type="time"], input[type="number"], input[type="file"], select{
+  input[type="date"], input[type="time"], input[type="number"], select{
     width:100%; padding:10px 12px; font-size:1rem; color:var(--text);
     background:#fff9e6; border:1px solid #edd27a; border-radius:10px; outline:none;
   }
   input:focus, select:focus{ border-color:#dfb43e; box-shadow:0 0 0 3px rgba(223,180,62,.25) }
   .btn{
     appearance:none; border:none; cursor:pointer; color:#2b1c00; font-weight:800;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    padding:10px 14px; border-radius:10px; box-shadow: var(--shadow);
-    transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    padding:10px 14px; border-radius:10px; box-shadow:var(--shadow);
   }
-  .btn:hover{ filter:brightness(1.05); box-shadow:0 10px 22px rgba(176,124,0,.2) }
-  .btn:active{ transform: translateY(1px) scale(.995) }
-  .btn.secondary{ background: #fff9e6; color: var(--text); border:1px solid #e6c869; box-shadow:none; font-weight:700 }
   .btn.small{ padding:8px 10px; font-size:.9rem; border-radius:8px }
-  .btn.danger{ background: linear-gradient(135deg, #ffc2b8, #ff8a80) }
+  .btn.secondary{ background:#fff9e6; color:#2b1c00; border:1px solid #e6c869; box-shadow:none; font-weight:700 }
+  .btn.danger{ background:linear-gradient(135deg,#ffc2b8,#ff8a80) }
 
-  /* KPIs */
-  .kpis{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-top:8px }
+  .kpis{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:8px }
   .kpi{ padding:10px; border-radius:10px; background:#fff9e6; border:1px solid #f3d98c }
   .kpi h3{ margin:6px 0 0; font-size:1.25rem }
-  .kpi .hint{ color: var(--muted); font-size:.85rem }
+  .kpi .hint{ color:var(--muted); font-size:.85rem }
 
-  /* Controls row */
-  .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center }
-
-  /* Table */
   table{ width:100%; border-collapse:collapse; border-radius:10px; overflow:hidden; font-size:.98rem }
-  thead{ background:#ffe889; }
+  thead{ background:#ffe889 }
   th, td{ padding:10px 12px; border-bottom:1px solid #f3d98c; text-align:left; vertical-align:top }
   tbody tr:hover{ background:#fff6d4 }
   .actions{ display:flex; gap:8px; flex-wrap:wrap }
@@ -129,25 +92,40 @@
   .badge{ display:inline-block; padding:2px 6px; border-radius:999px; background:#ffe071; color:#5a450f; border:1px solid #dfb43e; font-size:.8rem; margin-left:6px }
 
   th.sortable{ cursor:pointer; user-select:none }
-  th.sortable .caret{ margin-left:6px; opacity:.6; }
-  th[aria-sort="ascending"] .caret::after  { content:"▲" }
-  th[aria-sort="descending"] .caret::after { content:"▼" }
-  th[aria-sort="none"] .caret::after       { content:"⇅" }
+  th.sortable .caret{ margin-left:6px; opacity:.6 }
+  th[aria-sort="ascending"] .caret::after{ content:"▲" }
+  th[aria-sort="descending"] .caret::after{ content:"▼" }
+  th[aria-sort="none"] .caret::after{ content:"⇅" }
 
   canvas{ width:100% !important; height:360px !important }
   @media (min-width:900px){ canvas{ height:420px !important } }
 
   footer.meta{ margin-top:18px; color:var(--muted); font-size:.92rem; text-align:center }
-  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre; background:#fff9e6; border:1px solid #f3d98c; border-radius:10px; padding:10px; color:#5a450f; overflow:auto }
+  .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; white-space: pre; background:#fff9e6; border:1px solid #f3d98c; border-radius:10px; padding:10px; color:#5a450f; overflow:auto }
 </style>
 </head>
 <body>
   <div class="wrap">
     <header class="appbar" role="banner">
       <div class="brand">
-        <div class="logo" id="logoBox" aria-label="Logo de l'application">
-          <span class="initials">KS</span>
-          <img id="logoImg" alt="Logo KiloSport importé">
+        <!-- LOGO PERMANENT (intégré) -->
+        <div class="logo" aria-label="Logo KiloSport">
+          <svg viewBox="0 0 512 512" width="100%" height="100%" aria-hidden="true">
+            <rect width="512" height="512" fill="#FFCC00"/>
+            <g transform="translate(36,42)">
+              <path d="M220 40a64 64 0 1 0 0 128a64 64 0 1 0 0-128zm0 36a28 28 0 1 1 0 56a28 28 0 1 1 0-56z"
+                    fill="#2a2f36" opacity=".95"/>
+              <path d="M40,160h360c16,0 26,10 23,24l-55,222c-7,28-33,50-62,50H134c-29,0-55-22-62-50L17,184c-3-14 7-24 23-24z"
+                    fill="#2a2f36"/>
+              <ellipse cx="220" cy="204" rx="120" ry="16" fill="#ffffff" opacity=".12"/>
+              <g transform="translate(0,30)">
+                <text x="220" y="280" text-anchor="middle"
+                      font-family="Inter,Arial,Helvetica,sans-serif"
+                      font-size="120" font-weight="900"
+                      fill="#ffffff">1KG</text>
+              </g>
+            </g>
+          </svg>
         </div>
         <div class="titles">
           <h1>KiloSport</h1>
@@ -157,7 +135,8 @@
       <div class="titles"><div class="meta">© Pierre Charlier 2025</div></div>
     </header>
 
-    <nav class="tabs" role="tablist" aria-label="KiloSport sections">
+    <!-- Onglets -->
+    <nav class="tabs" role="tablist" aria-label="Sections KiloSport">
       <button class="tab-btn" role="tab" aria-selected="true" data-tab="suivi">Suivi</button>
       <button class="tab-btn" role="tab" aria-selected="false" data-tab="tableau">Tableau</button>
       <button class="tab-btn" role="tab" aria-selected="false" data-tab="parametres">Paramètres</button>
@@ -279,14 +258,6 @@
               <label for="maWindow">Fenêtre moyenne mobile (jours)</label>
               <input id="maWindow" name="maWindow" type="number" min="2" max="60" step="1" value="7">
             </div>
-            <div>
-              <label for="logoFile">Logo (image) — remplace KS</label>
-              <input id="logoFile" type="file" accept="image/*">
-              <div class="controls" style="margin-top:8px">
-                <button class="btn small" type="button" id="btnApplyLogo">Appliquer le logo</button>
-                <button class="btn small secondary" type="button" id="btnClearLogo">Supprimer le logo</button>
-              </div>
-            </div>
             <div class="controls">
               <button type="submit" class="btn">Enregistrer</button>
               <button type="button" id="btnResetSettings" class="btn secondary">Réinitialiser</button>
@@ -311,686 +282,317 @@
   </div>
 
 <script>
-/* ===================== Constantes & stockage ===================== */
-const STORAGE_KEY = 'kilosport-data-v22';
-const SETTINGS_KEY = 'kilosport-settings-v22';
-const VERSION = 'v2.2.0';
+/* ===== v2.2.0 — logo permanent — Exports OK — Fix clics Éditer/Supprimer ===== */
+window.addEventListener('DOMContentLoaded', () => {
+  const STORAGE_KEY='kilosport-data-v22';
+  const SETTINGS_KEY='kilosport-settings-v22';
+  const VERSION='v2.2.0';
 
-const $ = (sel) => document.querySelector(sel);
-function load(key, fallback){ try{ const v = JSON.parse(localStorage.getItem(key)); return (v ?? fallback); }catch{ return fallback; } }
-function save(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+  const $=(s)=>document.querySelector(s);
+  const load=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??f;}catch{return f;}};
+  const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 
-/* ===================== État ===================== */
-const state = {
-  data: load(STORAGE_KEY, []),                // {id, date:'YYYY-MM-DD', time:'HH:MM'|'' , poids:Number}
-  settings: Object.assign({ tailleCm:null, maWindow:7, logoDataUrl:null }, load(SETTINGS_KEY, {})),
-  chart: null,
-  sort: { key: 'datetime', dir: 'asc' },      // tri tableau
-  groupBy: 'entries',                         // entries|day|week|month
-  rangeFilter: 'all'                          // all|30|90|365
-};
+  const toISODate=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const fmtFR=s=>{const [y,m,d]=s.split('-');return `${d}/${m}/${y}`};
+  const parseISODate=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+  const toTimeHM=d=>`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const tsFrom=(date,time)=>{if(!time)return parseISODate(date).getTime();const [hh,mm]=time.split(':').map(Number);const dt=parseISODate(date);dt.setHours(hh||0,mm||0,0,0);return dt.getTime()};
+  const computeBMI=(kg,cm)=>{if(!kg||!cm)return null;const m=cm/100;return +(kg/(m*m)).toFixed(1)};
 
-/* ===================== Utilitaires ===================== */
-function toISODate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-function fmtFR(dateStr){ const [y,m,d] = dateStr.split('-'); return `${d}/${m}/${y}`; }
-function parseISODate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y, m-1, d); }
-function toTimeHM(d){ return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-function tsFrom(date, time){ if (!time) return parseISODate(date).getTime(); const [hh,mm] = time.split(':').map(Number); const dt = parseISODate(date); dt.setHours(hh||0, mm||0, 0, 0); return dt.getTime(); }
-function computeBMI(kg, cm){ if (!kg || !cm) return null; const m = cm/100; return +(kg/(m*m)).toFixed(1); }
+  const state={
+    data: load(STORAGE_KEY, []),
+    settings: Object.assign({tailleCm:null,maWindow:7}, load(SETTINGS_KEY, {})),
+    chart:null, sort:{key:'datetime',dir:'asc'}, groupBy:'entries', rangeFilter:'all'
+  };
 
-/* ISO week helpers */
-function getISOWeek(d){
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = (date.getUTCDay() + 6) % 7;
-  date.setUTCDate(date.getUTCDate() - dayNum + 3);
-  const firstThursday = new Date(Date.UTC(date.getUTCFullYear(),0,4));
-  const weekNum = 1 + Math.round(((date - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay()+6)%7)) / 7);
-  return { year: date.getUTCFullYear(), week: weekNum };
-}
-function weekLabelISO(dateStr){
-  const d = parseISODate(dateStr); const { year, week } = getISOWeek(d);
-  return `${String(week).padStart(2,'0')}/${year}`;
-}
-function monthLabel(dateStr){
-  const [y,m] = dateStr.split('-'); return `${m}/${y}`;
-}
+  const todayStrEl=$('#todayStr'), aboutTodayEl=$('#aboutToday');
+  const versionEls=[$('#version'),$('#aboutVersion')];
+  const addForm=$('#addForm'), dateInput=$('#date'), timeInput=$('#time'), poidsInput=$('#poids');
+  const btnToday=$('#btnToday'), btnResetZoom=$('#btnResetZoom');
+  const toggleMA=$('#toggleMA'), toggleLR=$('#toggleLR'), toggleBMI=$('#toggleBMI');
+  const kpiLast=$('#kpi-last'), kpiDelta=$('#kpi-delta'), kpiBMI=$('#kpi-bmi'), kpiTrend=$('#kpi-trend');
+  const tbody=$('#tbody'), listSimple=$('#listSimple');
+  const btnClearAll=$('#btnClearAll'), btnExportJson=$('#btnExportJson'), btnExportTxt=$('#btnExportTxt'), btnCopyList=$('#btnCopyList'), importFile=$('#importFile');
+  const settingsForm=$('#settingsForm'), tailleInput=$('#taille'), maWindowInput=$('#maWindow');
+  const groupBySelect=$('#groupBy'), rangeFilterSelect=$('#rangeFilter');
 
-/* ===================== DOM ===================== */
-const todayStrEl = $('#todayStr');
-const aboutTodayEl = $('#aboutToday');
-const versionEls = [$('#version'), $('#aboutVersion')];
-const logoBox = $('#logoBox'), logoImg = $('#logoImg');
-
-const addForm = $('#addForm');
-const dateInput = $('#date');
-const timeInput = $('#time');
-const poidsInput = $('#poids');
-const btnToday = $('#btnToday');
-const btnResetZoom = $('#btnResetZoom');
-
-const toggleMA = $('#toggleMA');
-const toggleLR = $('#toggleLR');
-const toggleBMI = $('#toggleBMI');
-
-const kpiLast = $('#kpi-last');
-const kpiDelta = $('#kpi-delta');
-const kpiBMI  = $('#kpi-bmi');
-const kpiTrend= $('#kpi-trend');
-
-const tbody = $('#tbody');
-const listSimple = $('#listSimple');
-
-const btnClearAll = $('#btnClearAll');
-const btnExportJson = $('#btnExportJson');
-const btnExportTxt = $('#btnExportTxt');
-const btnCopyList = $('#btnCopyList');
-const importFile = $('#importFile');
-
-const settingsForm = $('#settingsForm');
-const tailleInput = $('#taille');
-const maWindowInput = $('#maWindow');
-const logoFile = $('#logoFile');
-const btnApplyLogo = $('#btnApplyLogo');
-const btnClearLogo = $('#btnClearLogo');
-const btnResetSettings = $('#btnResetSettings');
-
-const groupBySelect = $('#groupBy');
-const rangeFilterSelect = $('#rangeFilter');
-
-/* ===================== Tri ===================== */
-function compare(a, b, key){
-  if (key === 'datetime'){
-    const ta = tsFrom(a.date, a.time||'00:00'), tb = tsFrom(b.date, b.time||'00:00');
-    return ta - tb;
+  /* ---------- Téléchargement robuste ---------- */
+  function canUseFileShare(){
+    try{
+      const supports = !!navigator.canShare && !!window.File && !!window.Blob;
+      if (!supports) return false;
+      const testFile = new File(['x'], 'x.txt', {type:'text/plain'});
+      return navigator.canShare({ files: [testFile] });
+    }catch{ return false; }
   }
-  if (key === 'date'){
-    const ta = tsFrom(a.date, '00:00'), tb = tsFrom(b.date, '00:00');
-    if (ta !== tb) return ta - tb;
-    return (a.time||'').localeCompare(b.time||'') || (a.id||'').localeCompare(b.id||'');
+  function downloadBlob(filename, blob){
+    if (canUseFileShare()){
+      try{
+        const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+        navigator.share({ files: [file], title: filename, text: 'Export KiloSport' }).catch(()=>{});
+        return;
+      }catch{}
+    }
+    if ('download' in HTMLAnchorElement.prototype){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.rel='noopener'; a.style.display='none';
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+      return;
+    }
+    const fr = new FileReader();
+    fr.onload = () => {
+      const a = document.createElement('a');
+      a.href = fr.result; a.target = '_blank'; a.rel='noopener';
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>a.remove(), 0);
+    };
+    fr.readAsDataURL(blob);
   }
-  if (key === 'time'){
-    const t1 = (a.time||''), t2 = (b.time||'');
-    if (t1 !== t2) return t1.localeCompare(t2);
-    const da = tsFrom(a.date,'00:00'), db = tsFrom(b.date,'00:00');
-    return da - db || (a.id||'').localeCompare(b.id||'');
+
+  /* ---------- Tri / group / filtre ---------- */
+  function compare(a,b,key){
+    if (key==='datetime') return tsFrom(a.date,a.time||'00:00')-tsFrom(b.date,b.time||'00:00');
+    if (key==='date'){ const ta=tsFrom(a.date,'00:00'), tb=tsFrom(b.date,'00:00'); if(ta!==tb) return ta-tb; return (a.time||'').localeCompare(b.time||'')||(a.id||'').localeCompare(b.id||''); }
+    if (key==='time'){ const t1=(a.time||''), t2=(b.time||''); if(t1!==t2) return t1.localeCompare(t2); const da=tsFrom(a.date,'00:00'), db=tsFrom(b.date,'00:00'); return da-db||(a.id||'').localeCompare(b.id||''); }
+    if (key==='poids') return a.poids-b.poids;
+    if (key==='bmi'){ const ta=computeBMI(a.poids,state.settings.tailleCm)??Infinity; const tb=computeBMI(b.poids,state.settings.tailleCm)??Infinity; return ta-tb; }
+    return 0;
   }
-  if (key === 'poids'){ return a.poids - b.poids; }
-  if (key === 'bmi'){
-    const ta = computeBMI(a.poids, state.settings.tailleCm) ?? Infinity;
-    const tb = computeBMI(b.poids, state.settings.tailleCm) ?? Infinity;
-    return ta - tb;
+  function sortRows(rows){ const {key,dir}=state.sort; const arr=rows.slice().sort((a,b)=>compare(a,b,key)); return dir==='desc'?arr.reverse():arr; }
+  function setSort(k){ if(state.sort.key===k){ state.sort.dir=state.sort.dir==='asc'?'desc':'asc'; } else { state.sort.key=k; state.sort.dir='asc'; } refreshViewsOnly(); updateSortHeaders(); }
+  function updateSortHeaders(){ document.querySelectorAll('th.sortable').forEach(th=>{ const k=th.getAttribute('data-sort'); const aria=(k===state.sort.key)?(state.sort.dir==='asc'?'ascending':'descending'):'none'; th.setAttribute('aria-sort',aria); }); }
+
+  function filterByRange(rows){ if(state.rangeFilter==='all') return rows;
+    const days=+state.rangeFilter; const cutoff=Date.now()-days*86400000;
+    return rows.filter(r=>tsFrom(r.date,r.time||'00:00')>=cutoff);
   }
-  return 0;
-}
-function sortRows(rows){
-  const { key, dir } = state.sort;
-  const arr = rows.slice().sort((a,b) => compare(a,b,key));
-  return dir === 'desc' ? arr.reverse() : arr;
-}
-function setSort(key){
-  if (state.sort.key === key){
-    state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
-  } else {
-    state.sort.key = key;
-    state.sort.dir = 'asc';
+  function getISOWeek(d){ const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const dayNum=(date.getUTCDay()+6)%7; date.setUTCDate(date.getUTCDate()-dayNum+3); const firstThursday=new Date(Date.UTC(date.getUTCFullYear(),0,4)); const weekNum=1+Math.round(((date-firstThursday)/86400000-3+((firstThursday.getUTCDay()+6)%7))/7); return {year:date.getUTCFullYear(),week:weekNum}; }
+  const weekLabelISO=(s)=>{ const d=parseISODate(s); const {year,week}=getISOWeek(d); return `${String(week).padStart(2,'0')}/${year}`; };
+  const monthLabel=(s)=>{ const [y,m]=s.split('-'); return `${m}/${y}`; };
+  function groupRows(rows){
+    const gb=state.groupBy; if(gb==='entries') return rows.map(r=>({...r,_group:false}));
+    const map=new Map();
+    for(const r of rows){
+      let key='',label='',gTs=0;
+      if(gb==='day'){ key=r.date; label=fmtFR(r.date); gTs=tsFrom(r.date,'00:00'); }
+      if(gb==='week'){ key=weekLabelISO(r.date); label=`Semaine ${key}`; gTs=tsFrom(r.date,'00:00'); }
+      if(gb==='month'){ key=monthLabel(r.date); label=`Mois ${key}`; gTs=tsFrom(r.date,'00:00'); }
+      if(!map.has(key)) map.set(key,{key,label,gTs,n:0,sum:0,min:Infinity,max:-Infinity});
+      const o=map.get(key); o.n++; o.sum+=r.poids; o.min=Math.min(o.min,r.poids); o.max=Math.max(o.max,r.poids);
+    }
+    return [...map.values()].sort((a,b)=>a.gTs-b.gTs).map(g=>({id:`group-${g.key}`,date:g.label,time:'',poids:+(g.sum/g.n).toFixed(1),_group:true,n:g.n,min:g.min,max:g.max}));
   }
-  refreshViewsOnly();
-  updateSortHeaders();
-}
-function updateSortHeaders(){
-  document.querySelectorAll('th.sortable').forEach(th=>{
-    const k = th.getAttribute('data-sort');
-    const aria = (k===state.sort.key) ? (state.sort.dir==='asc'?'ascending':'descending') : 'none';
-    th.setAttribute('aria-sort', aria);
+
+  /* ---------- Graphique ---------- */
+  function movingAverage(values, w=7){ w=Math.max(2,+w||7); const out=[]; let sum=0, q=[]; for(let i=0;i<values.length;i++){ q.push(values[i]); sum+=values[i]; if(q.length>w) sum-=q.shift(); out.push(+(sum/q.length).toFixed(2)); } return out; }
+  function linearRegression(y){ if(y.length<2) return []; const n=y.length,xs=[...Array(n).keys()]; let sx=0,sy=0,sxy=0,sxx=0; for(let i=0;i<n;i++){const x=xs[i],v=y[i]; sx+=x; sy+=v; sxy+=x*v; sxx+=x*x; } const d=n*sxx-sx*sx; if(!d) return []; const a=(n*sxy-sx*sy)/d, b=(sy-a*sx)/n; return xs.map(x=>+(b+a*x).toFixed(2)); }
+  function buildChartData(){
+    const rows=filterByRange(state.data.slice()).sort((a,b)=>tsFrom(a.date,a.time||'')-tsFrom(b.date,b.time||''));
+    const labels=rows.map(r=>r.time?`${fmtFR(r.date)} ${r.time}`:fmtFR(r.date));
+    const weights=rows.map(r=>r.poids);
+    const ds=[{label:'Poids (kg)',data:weights,tension:.25,borderColor:'#b07c00',backgroundColor:'rgba(176,124,0,.15)',pointRadius:3,pointHoverRadius:5}];
+    if(toggleMA.checked){ const ma=movingAverage(weights,state.settings.maWindow||7); ds.push({label:`Moyenne mobile (${state.settings.maWindow||7})`,data:ma,borderDash:[6,6],borderWidth:2,tension:.2,borderColor:'#ffcc00',pointRadius:0}); }
+    if(toggleLR.checked){ const lr=linearRegression(weights); ds.push({label:'Tendance (linéaire)',data:lr,borderWidth:2,borderColor:'#d79b00',pointRadius:0}); }
+    if(toggleBMI.checked && (state.settings.tailleCm??0)>0){ const bmi=rows.map(r=>computeBMI(r.poids,state.settings.tailleCm)); ds.push({label:'IMC',data:bmi,yAxisID:'y1',borderWidth:2,tension:.25,borderColor:'#f59e0b',pointRadius:2}); }
+    return {labels,datasets:ds};
+  }
+  function renderChart(){
+    const {labels,datasets}=buildChartData();
+    const cfg={type:'line',data:{labels,datasets},options:{
+      responsive:true,maintainAspectRatio:false,interaction:{mode:'nearest',intersect:false},
+      plugins:{legend:{labels:{color:'#5a450f'}},tooltip:{callbacks:{label:(c)=>c.dataset.label.includes('IMC')?`${c.dataset.label}: ${c.parsed.y}`:`${c.dataset.label}: ${c.parsed.y} kg`}},
+               zoom:{zoom:{wheel:{enabled:true},pinch:{enabled:true},drag:{enabled:true},mode:'x'},pan:{enabled:true,mode:'x'}}},
+      scales:{x:{grid:{color:'#f1d37f'},ticks:{color:'#5a450f'}},y:{title:{display:true,text:'Poids (kg)',color:'#5a450f'},grid:{color:'#f1d37f'},ticks:{color:'#5a450f'}},
+              y1:{position:'right',title:{display:true,text:'IMC',color:'#5a450f'},grid:{drawOnChartArea:false},ticks:{color:'#5a450f'},min:10,max:40}}
+    }};
+    const ctx=document.getElementById('chart').getContext('2d');
+    if(state.chart){ state.chart.data=cfg.data; state.chart.options=cfg.options; state.chart.update(); }
+    else{ state.chart=new Chart(ctx,cfg); }
+  }
+
+  /* ---------- Tableau & Liste ---------- */
+  const baseRowsSorted=()=>state.data.slice().sort((a,b)=>tsFrom(a.date,a.time||'')-tsFrom(b.date,b.time||''));
+  function renderTable(){
+    const filtered=filterByRange(baseRowsSorted());
+    const rows=(state.groupBy==='entries')?sortRows(filtered):groupRows(filtered);
+    const taille=state.settings.tailleCm; tbody.innerHTML='';
+    for(const r of rows){
+      const isGroup=!!r._group, bmi=computeBMI(r.poids,taille);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td>${isGroup?r.date:fmtFR(r.date)}</td>
+        <td>${isGroup?'—':(r.time||'—')}</td>
+        <td>${isGroup?`${r.poids.toFixed(1)} <span class="badge">n=${r.n} • min ${r.min.toFixed(1)} • max ${r.max.toFixed(1)}</span>`:r.poids.toFixed(1)}</td>
+        <td>${bmi??'—'}</td>
+        <td class="actions">${isGroup?'—':`
+          <button class="btn small secondary" data-edit="${r.id}" type="button">Éditer</button>
+          <button class="btn small danger" data-del="${r.id}" type="button">Suppr.</button>`}
+        </td>`;
+      if(!isGroup){
+        // Double-clic sur la ligne = éditer (raccourci)
+        tr.addEventListener('dblclick',()=>startEdit(r.id));
+      }
+      tbody.appendChild(tr);
+    }
+  }
+  function renderListSimple(){
+    const rows=baseRowsSorted();
+    listSimple.textContent = rows.length
+      ? rows.map(r=>`${fmtFR(r.date)}${r.time?' '+r.time:''} — ${r.poids.toFixed(1)} kg`).join('\n')
+      : '—';
+  }
+
+  /* ---------- KPI ---------- */
+  function renderKPIs(){
+    const rows=baseRowsSorted();
+    if(!rows.length){ kpiLast.textContent='—'; kpiDelta.textContent='—'; kpiBMI.textContent='—'; kpiTrend.textContent='—'; kpiTrend.style.color='inherit'; return; }
+    const last=rows[rows.length-1]; kpiLast.textContent=`${last.poids.toFixed(1)} kg`;
+    const cutoff=Date.now()-30*86400000; const base=rows.find(r=>tsFrom(r.date,r.time||'00:00')>=cutoff)||rows[0];
+    const delta=+(last.poids-base.poids).toFixed(1); kpiDelta.textContent=`${delta>0?'+':''}${delta} kg`;
+    const bmi=computeBMI(last.poids,state.settings.tailleCm); kpiBMI.textContent=bmi??'—';
+    if(rows.length>=2){
+      const ys=rows.map(r=>r.poids); const lr=linearRegression(ys);
+      const perStep=lr.length>=2?(lr[lr.length-1]-lr[0])/(lr.length-1):0;
+      const perWeek=perStep*7;
+      kpiTrend.textContent=`${perWeek.toFixed(2)} kg/sem.`;
+      kpiTrend.style.color=(perWeek<0)?'var(--good)':((perWeek>0)?'var(--bad)':'var(--muted)');
+    } else { kpiTrend.textContent='—'; kpiTrend.style.color='inherit'; }
+  }
+
+  /* ---------- CRUD ---------- */
+  function startEdit(id){
+    const item=state.data.find(d=>d.id===id); if(!item) return;
+    const nv=prompt(`Modifier le poids du ${fmtFR(item.date)}${item.time?' '+item.time:''} (kg):`, String(item.poids));
+    if(nv===null) return;
+    const val=parseFloat(String(nv).replace(',','.'));
+    if(Number.isFinite(val)&&val>0){ item.poids=+val.toFixed(1); save(STORAGE_KEY,state.data); refreshViewsOnly(); }
+    else alert('Valeur invalide.');
+  }
+
+  /* ---------- Events UI ---------- */
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.setAttribute('aria-selected','false'));
+      btn.setAttribute('aria-selected','true');
+      const id=btn.dataset.tab;
+      document.querySelectorAll('section.tab').forEach(s=>s.classList.toggle('active', s.id===id));
+      if(id==='suivi' && state.chart) state.chart.resize();
+    });
   });
-}
+  document.querySelectorAll('th.sortable').forEach(th=> th.addEventListener('click',()=>setSort(th.getAttribute('data-sort'))));
 
-/* ===================== Grouping & Filtering ===================== */
-function filterByRange(rows){
-  if (state.rangeFilter === 'all') return rows;
-  const days = +state.rangeFilter;
-  const cutoff = Date.now() - days*86400000;
-  return rows.filter(r => tsFrom(r.date, r.time||'00:00') >= cutoff);
-}
-function groupRows(rows){
-  const gb = state.groupBy;
-  if (gb === 'entries') return rows.map(r => ({...r, _group:false}));
-
-  const map = new Map();
-  for (const r of rows){
-    let key='', label='', gTs=0;
-    if (gb==='day'){ key=r.date; label=fmtFR(r.date); gTs = tsFrom(r.date,'00:00'); }
-    if (gb==='week'){ const wl=weekLabelISO(r.date); key=wl; label=`Semaine ${wl}`; gTs = tsFrom(r.date,'00:00'); }
-    if (gb==='month'){ const ml=monthLabel(r.date); key=ml; label=`Mois ${ml}`; gTs = tsFrom(r.date,'00:00'); }
-    if (!map.has(key)) map.set(key, { key, label, gTs, n:0, sum:0, min:Infinity, max:-Infinity });
-    const o = map.get(key); o.n++; o.sum += r.poids; o.min = Math.min(o.min, r.poids); o.max = Math.max(o.max, r.poids);
-  }
-  const groups = [...map.values()]
-    .sort((a,b) => a.gTs - b.gTs)
-    .map(g => ({
-      id: `group-${g.key}`,
-      date: g.label,       // affichage
-      time: '',
-      poids: +(g.sum / g.n).toFixed(1),
-      _group: true,
-      n: g.n, min: g.min, max: g.max
-    }));
-  return groups;
-}
-
-/* ===================== Chart helpers ===================== */
-function movingAverage(values, window=7){
-  const w = Math.max(2, +window||7);
-  const out=[]; let sum=0, q=[];
-  for (let i=0;i<values.length;i++){
-    q.push(values[i]); sum+=values[i];
-    if (q.length>w) sum-=q.shift();
-    out.push(+(sum/q.length).toFixed(2));
-  }
-  return out;
-}
-function linearRegression(y){
-  if (y.length<2) return [];
-  const n = y.length; const xs = [...Array(n).keys()];
-  let sumX=0,sumY=0,sumXY=0,sumXX=0;
-  for (let i=0;i<n;i++){ const xi=xs[i], yi=y[i]; sumX+=xi; sumY+=yi; sumXY+=xi*yi; sumXX+=xi*xi; }
-  const d = n*sumXX - sumX*sumX; if (d===0) return [];
-  const slope = (n*sumXY - sumX*sumY)/d;
-  const intercept = (sumY - slope*sumX)/n;
-  return xs.map(x => +(intercept + slope*x).toFixed(2));
-}
-
-/* ===================== Rendu graphique ===================== */
-function buildChartData(){
-  // graphique : toujours toutes les entrées filtrées par période (pas par groupBy)
-  const rows = filterByRange(state.data.slice()).sort((a,b)=> tsFrom(a.date,a.time||'') - tsFrom(b.date,b.time||''));
-  const labels = rows.map(r => r.time ? `${fmtFR(r.date)} ${r.time}` : fmtFR(r.date));
-  const weights = rows.map(r => r.poids);
-
-  const datasets = [{
-    label:'Poids (kg)',
-    data: weights,
-    tension:.25,
-    borderColor:'#b07c00',
-    backgroundColor:'rgba(176,124,0,.15)',
-    pointRadius:3, pointHoverRadius:5
-  }];
-
-  if (toggleMA.checked) {
-    const ma = movingAverage(weights, state.settings.maWindow || 7);
-    datasets.push({
-      label:`Moyenne mobile (${state.settings.maWindow || 7})`,
-      data: ma,
-      borderDash:[6,6], borderWidth:2, tension:.2,
-      borderColor:'#ffcc00', pointRadius:0
-    });
-  }
-  if (toggleLR.checked) {
-    const lr = linearRegression(weights);
-    datasets.push({
-      label:'Tendance (linéaire)',
-      data: lr,
-      borderWidth:2,
-      borderColor:'#d79b00',
-      pointRadius:0
-    });
-  }
-  if (toggleBMI.checked && (state.settings.tailleCm ?? 0) > 0) {
-    const bmi = rows.map(r => computeBMI(r.poids, state.settings.tailleCm));
-    datasets.push({
-      label:'IMC',
-      data: bmi,
-      yAxisID:'y1',
-      borderWidth:2, tension:.25,
-      borderColor:'#f59e0b', pointRadius:2
-    });
-  }
-
-  return { labels, datasets };
-}
-function renderChart(){
-  const { labels, datasets } = buildChartData();
-  const cfg = {
-    type:'line',
-    data:{ labels, datasets },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      interaction:{ mode:'nearest', intersect:false },
-      plugins:{
-        legend:{ labels:{ color:'#5a450f' } },
-        tooltip:{ callbacks:{
-          label:(ctx)=>{
-            const label = ctx.dataset.label || '';
-            const val = ctx.parsed.y;
-            return label.includes('IMC') ? `${label}: ${val}` : `${label}: ${val} kg`;
-          }
-        }},
-        zoom:{
-          zoom:{
-            wheel:{ enabled:true },
-            pinch:{ enabled:true },
-            drag:{ enabled:true },
-            mode:'x'
-          },
-          pan:{ enabled:true, mode:'x' }
-        }
-      },
-      scales:{
-        x:{ grid:{ color:'#f1d37f' }, ticks:{ color:'#5a450f' } },
-        y:{ title:{ display:true, text:'Poids (kg)', color:'#5a450f' }, grid:{ color:'#f1d37f' }, ticks:{ color:'#5a450f' } },
-        y1:{ position:'right', title:{ display:true, text:'IMC', color:'#5a450f' }, grid:{ drawOnChartArea:false }, ticks:{ color:'#5a450f' }, min:10, max:40 }
+  // ✅ DÉLÉGATION SUR TBODY + arrêt de propagation pour éviter le dblclick ligne
+  tbody.addEventListener('click',(e)=>{
+    const btn=e.target.closest('button');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const idEdit=btn.getAttribute('data-edit');
+    const idDel =btn.getAttribute('data-del');
+    if(idEdit){ startEdit(idEdit); return; }
+    if(idDel){
+      const ok=confirm('Supprimer cette mesure ?');
+      if(ok){
+        state.data = state.data.filter(d=>d.id!==idDel);
+        save(STORAGE_KEY,state.data);
+        refreshAll();
       }
     }
-  };
-  const ctx = document.getElementById('chart').getContext('2d');
-  if (state.chart){ state.chart.data = cfg.data; state.chart.options = cfg.options; state.chart.update(); }
-  else { state.chart = new Chart(ctx, cfg); }
-}
-
-/* ===================== Tableau & Liste ===================== */
-function baseRowsSorted(){
-  return state.data.slice().sort((a,b)=> tsFrom(a.date,a.time||'') - tsFrom(b.date,b.time||''));
-}
-function renderTable(){
-  const filtered = filterByRange(baseRowsSorted());
-  const rows = (state.groupBy==='entries') ? sortRows(filtered) : groupRows(filtered);
-  const taille = state.settings.tailleCm;
-
-  tbody.innerHTML = '';
-  for (const r of rows){
-    const isGroup = !!r._group;
-    const tr = document.createElement('tr');
-    const bmi = computeBMI(r.poids, taille);
-
-    const dateCell = isGroup ? r.date : fmtFR(r.date);
-    const timeCell = isGroup ? '—' : (r.time || '—');
-    const poidsCell = isGroup ? `${r.poids.toFixed(1)} <span class="badge">n=${r.n} • min ${r.min.toFixed(1)} • max ${r.max.toFixed(1)}</span>` : r.poids.toFixed(1);
-    const actionsCell = isGroup ? '—' : `
-      <button class="btn small secondary" data-edit="${r.id}">Éditer</button>
-      <button class="btn small danger" data-del="${r.id}">Suppr.</button>`;
-
-    tr.innerHTML = `
-      <td>${dateCell}</td>
-      <td>${timeCell}</td>
-      <td>${poidsCell}</td>
-      <td>${bmi ?? '—'}</td>
-      <td class="actions">${actionsCell}</td>`;
-    if (!isGroup) tr.addEventListener('dblclick', () => startEdit(r.id));
-    tbody.appendChild(tr);
-  }
-}
-function renderListSimple(){
-  const rows = baseRowsSorted();
-  if (rows.length===0){ listSimple.textContent = '—'; return; }
-  const lines = rows.map(r => `${fmtFR(r.date)}${r.time ? ' '+r.time : ''} — ${r.poids.toFixed(1)} kg`);
-  listSimple.textContent = lines.join('\n');
-}
-
-/* ===================== KPI ===================== */
-function renderKPIs(){
-  const rows = baseRowsSorted();
-  if (rows.length===0){
-    kpiLast.textContent = '—'; kpiDelta.textContent = '—';
-    kpiBMI.textContent = '—'; kpiTrend.textContent = '—';
-    kpiTrend.style.color = 'inherit'; return;
-  }
-  const last = rows[rows.length-1];
-  kpiLast.textContent = `${last.poids.toFixed(1)} kg`;
-
-  const cutoff = Date.now() - 30*86400000;
-  const base = rows.find(r => tsFrom(r.date, r.time||'00:00') >= cutoff) || rows[0];
-  const delta = +(last.poids - base.poids).toFixed(1);
-  kpiDelta.textContent = `${delta>0?'+':''}${delta} kg`;
-
-  const bmi = computeBMI(last.poids, state.settings.tailleCm);
-  kpiBMI.textContent = bmi ?? '—';
-
-  if (rows.length>=2){
-    const ys = rows.map(r => r.poids);
-    const lr = linearRegression(ys);
-    const perStep = lr.length>=2 ? (lr[lr.length-1]-lr[0])/(lr.length-1) : 0;
-    const perWeek = perStep * 7;
-    kpiTrend.textContent = `${perWeek.toFixed(2)} kg/sem.`;
-    kpiTrend.style.color = (perWeek < 0) ? 'var(--good)' : ((perWeek > 0) ? 'var(--bad)' : 'var(--muted)');
-  } else {
-    kpiTrend.textContent = '—';
-    kpiTrend.style.color = 'inherit';
-  }
-}
-
-/* ===================== CRUD actions ===================== */
-function startEdit(id){
-  const item = state.data.find(d => d.id === id);
-  if (!item) return;
-  const newVal = prompt(`Modifier le poids du ${fmtFR(item.date)}${item.time? ' '+item.time:''} (kg):`, String(item.poids));
-  if (newVal === null) return;
-  const val = parseFloat(String(newVal).replace(',', '.'));
-  if (Number.isFinite(val) && val > 0){
-    item.poids = +val.toFixed(1);
-    save(STORAGE_KEY, state.data);
-    refreshViewsOnly();
-  } else alert('Valeur invalide.');
-}
-
-/* ===================== Export / Import ===================== */
-function exportJSON(){
-  const payload = { data: state.data, settings: state.settings, version: VERSION };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `kilosport-${toISODate(new Date())}.json`;
-  a.click(); URL.revokeObjectURL(a.href);
-}
-function exportTXT(){
-  const rows = baseRowsSorted();
-  const lines = rows.map(r => `${fmtFR(r.date)}\t${r.time||''}\t${r.poids.toFixed(1)}`);
-  const txt = lines.join('\n');
-  const blob = new Blob([txt], { type:'text/plain;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `kilosport-${toISODate(new Date())}.txt`;
-  a.click(); URL.revokeObjectURL(a.href);
-}
-
-/* ===================== Logo ===================== */
-function fileToDataURL(file){
-  return new Promise((res, rej) => {
-    const fr = new FileReader();
-    fr.onload = () => res(fr.result);
-    fr.onerror = rej;
-    fr.readAsDataURL(file);
   });
-}
-function applyLogo(dataUrl){
-  state.settings.logoDataUrl = dataUrl;
-  save(SETTINGS_KEY, state.settings);
-  updateLogoUI();
-}
-function clearLogo(){
-  state.settings.logoDataUrl = null;
-  save(SETTINGS_KEY, state.settings);
-  updateLogoUI();
-}
-function updateLogoUI(){
-  if (state.settings.logoDataUrl){
-    logoImg.src = state.settings.logoDataUrl;
-    logoBox.classList.add('has-image');
-  } else {
-    logoImg.removeAttribute('src');
-    logoBox.classList.remove('has-image');
-  }
-}
 
-/* ===================== Wiring UI ===================== */
-addForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const date = dateInput.value;
-  const time = timeInput.value.trim();
-  const poids = parseFloat(String(poidsInput.value).replace(',', '.'));
-  if (!date || !Number.isFinite(poids) || poids <= 0){
-    alert('Veuillez entrer une date et un poids valides.');
-    return;
-  }
-  const id = `${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
-  state.data.push({ id, date, time, poids:+poids.toFixed(1) });
-  save(STORAGE_KEY, state.data);
-  poidsInput.value = '';
-  refreshAll();
-});
-
-btnToday.addEventListener('click', () => {
-  const now = new Date();
-  dateInput.value = toISODate(now);
-  timeInput.value = toTimeHM(now);
-});
-btnResetZoom.addEventListener('click', () => {
-  if (state.chart){
-    state.chart.resetZoom();
-  }
-});
-
-btnClearAll.addEventListener('click', () => {
-  if (confirm('Supprimer toutes les mesures ?')){
-    state.data = []; save(STORAGE_KEY, state.data); refreshAll();
-  }
-});
-
-tbody.addEventListener('click', (e) => {
-  const btn = e.target.closest('button'); if (!btn) return;
-  const edit = btn.getAttribute('data-edit');
-  const del  = btn.getAttribute('data-del');
-  if (edit) startEdit(edit);
-  if (del && confirm('Supprimer cette mesure ?')){
-    state.data = state.data.filter(d => d.id !== del);
-    save(STORAGE_KEY, state.data); refreshAll();
-  }
-});
-
-btnExportJson.addEventListener('click', exportJSON);
-btnExportTxt.addEventListener('click', exportTXT);
-
-btnCopyList.addEventListener('click', async () => {
-  try{
-    await navigator.clipboard.writeText(listSimple.textContent.trim());
-    btnCopyList.textContent = 'Copié ✔️';
-    setTimeout(()=> btnCopyList.textContent = 'Copier la liste', 1000);
-  }catch{ alert('Impossible de copier'); }
-});
-
-importFile.addEventListener('change', async (e) => {
-  const file = e.target.files[0]; if (!file) return;
-  try{
-    const obj = JSON.parse(await file.text());
-    if (!obj || !Array.isArray(obj.data)) throw new Error('format');
-    const cleaned = obj.data
-      .map(x => ({
-        id: String(x.id || `${Date.now()}-${Math.random()}`),
-        date: String(x.date),
-        time: String(x.time || ''),
-        poids: +x.poids
-      }))
-      .filter(x => x.date && Number.isFinite(x.poids) && x.poids > 0);
-    state.data = cleaned; save(STORAGE_KEY, state.data);
-    if (obj.settings){
-      state.settings = Object.assign({ tailleCm:null, maWindow:7, logoDataUrl:null }, obj.settings);
-      save(SETTINGS_KEY, state.settings);
-    }
-    refreshAll(); e.target.value = ''; alert('Import réussi ✅');
-  } catch { alert('Fichier invalide ❌'); }
-});
-
-/* Paramètres */
-settingsForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const tailleCm = parseInt(tailleInput.value, 10);
-  const maWindow = Math.max(2, Math.min(60, parseInt(maWindowInput.value, 10) || 7));
-  if (!Number.isFinite(tailleCm) || tailleCm < 80 || tailleCm > 250){
-    alert('Veuillez entrer une taille en cm (80–250).'); return;
-  }
-  state.settings.tailleCm = tailleCm;
-  state.settings.maWindow = maWindow;
-  save(SETTINGS_KEY, state.settings);
-  refreshAll();
-});
-btnResetSettings.addEventListener('click', () => {
-  state.settings = { tailleCm:null, maWindow:7, logoDataUrl: null };
-  save(SETTINGS_KEY, state.settings);
-  refreshAll();
-});
-btnApplyLogo.addEventListener('click', async () => {
-  const f = logoFile.files?.[0];
-  if (!f){ alert('Choisis un fichier image.'); return; }
-  if (f.size > 2_500_000){ alert('Image trop lourde (>2.5 Mo).'); return; }
-  const dataUrl = await fileToDataURL(f);
-  applyLogo(dataUrl);
-});
-btnClearLogo.addEventListener('click', clearLogo);
-
-/* Toggles */
-[toggleMA, toggleLR, toggleBMI].forEach(el => el.addEventListener('change', renderChart));
-
-/* Onglets */
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.setAttribute('aria-selected','false'));
-    btn.setAttribute('aria-selected','true');
-    const id = btn.dataset.tab;
-    document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('active', s.id === id));
-    if (id === 'suivi' && state.chart) state.chart.resize();
+  addForm.addEventListener('submit',(e)=>{
+    e.preventDefault();
+    const date=dateInput.value;
+    const time=timeInput.value.trim();
+    const poids=parseFloat(String(poidsInput.value).replace(',','.'));
+    if(!date||!Number.isFinite(poids)||poids<=0){ alert('Veuillez entrer une date et un poids valides.'); return; }
+    const id=`${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+    state.data.push({id,date,time,poids:+poids.toFixed(1)});
+    save(STORAGE_KEY,state.data);
+    poidsInput.value='';
+    refreshAll();
   });
-});
+  $('#btnToday').addEventListener('click',()=>{
+    const now=new Date(); dateInput.value = toISODate(now); timeInput.value = toTimeHM(now);
+  });
+  $('#btnResetZoom').addEventListener('click',()=>{ if(state.chart&&state.chart.resetZoom) state.chart.resetZoom(); });
+  $('#btnClearAll').addEventListener('click',()=>{ if(confirm('Supprimer toutes les mesures ?')){ state.data=[]; save(STORAGE_KEY,state.data); refreshAll(); } });
 
-/* En-têtes cliquables pour tri */
-document.querySelectorAll('th.sortable').forEach(th=>{
-  th.addEventListener('click', ()=> setSort(th.getAttribute('data-sort')));
-});
+  /* ---------- Export / Import ---------- */
+  $('#btnExportJson').addEventListener('click',()=>{
+    const payload={ data:state.data, settings:state.settings, version:VERSION };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    downloadBlob(`kilosport-${toISODate(new Date())}.json`, blob);
+  });
+  $('#btnExportTxt').addEventListener('click',()=>{
+    const rows=baseRowsSorted();
+    const lines=rows.map(r=>`${fmtFR(r.date)}\t${r.time||''}\t${r.poids.toFixed(1)}`).join('\n');
+    const blob=new Blob([lines],{type:'text/plain;charset=utf-8'});
+    downloadBlob(`kilosport-${toISODate(new Date())}.txt`, blob);
+  });
+  $('#btnCopyList').addEventListener('click',async()=>{
+    try{ await navigator.clipboard.writeText(listSimple.textContent.trim());
+      const b=$('#btnCopyList'); b.textContent='Copié ✔️'; setTimeout(()=>b.textContent='Copier la liste',1000);
+    }catch{ alert('Impossible de copier'); }
+  });
+  $('#importFile').addEventListener('change',async(e)=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{
+      const obj=JSON.parse(await f.text());
+      if(!obj||!Array.isArray(obj.data)) throw new Error('format');
+      const cleaned=obj.data
+        .map(x=>({id:String(x.id||`${Date.now()}-${Math.random()}`),date:String(x.date),time:String(x.time||''),poids:+x.poids}))
+        .filter(x=>x.date&&Number.isFinite(x.poids)&&x.poids>0);
+      state.data=cleaned; save(STORAGE_KEY,state.data);
+      if(obj.settings){
+        state.settings = Object.assign({tailleCm:null,maWindow:7}, obj.settings);
+        save(SETTINGS_KEY,state.settings);
+      }
+      refreshAll(); e.target.value=''; alert('Import réussi ✅');
+    }catch{ alert('Fichier invalide ❌'); }
+  });
 
-/* GroupBy & Filter */
-groupBySelect.addEventListener('change', () => { state.groupBy = groupBySelect.value; refreshViewsOnly(); });
-rangeFilterSelect.addEventListener('change', () => { state.rangeFilter = rangeFilterSelect.value; refreshViewsOnly(); });
+  $('#settingsForm').addEventListener('submit',(e)=>{
+    e.preventDefault();
+    const tailleCm=parseInt(tailleInput.value,10);
+    const maWindow=Math.max(2,Math.min(60,parseInt(maWindowInput.value,10)||7));
+    if(!Number.isFinite(tailleCm)||tailleCm<80||tailleCm>250){
+      alert('Veuillez entrer une taille en cm (80–250).'); return;
+    }
+    state.settings.tailleCm=tailleCm;
+    state.settings.maWindow=maWindow;
+    save(SETTINGS_KEY,state.settings);
+    refreshAll();
+  });
+  $('#btnResetSettings').addEventListener('click',()=>{
+    state.settings={tailleCm:null,maWindow:7}; save(SETTINGS_KEY,state.settings); refreshAll();
+  });
+  $('#groupBy').addEventListener('change',()=>{ state.groupBy=groupBy.value; refreshViewsOnly(); });
+  $('#rangeFilter').addEventListener('change',()=>{ state.rangeFilter=rangeFilter.value; refreshViewsOnly(); });
 
-/* ===================== Refresh & Init ===================== */
-function refreshViewsOnly(){
-  renderKPIs();
-  renderTable();
-  renderListSimple();
-  renderChart();
-  updateSortHeaders();
-}
-function refreshAll(){
-  state.data = state.data
-    .map(d => ({ id: d.id || `${Date.now()}-${Math.random()}`, date: d.date, time: (d.time||'').slice(0,5), poids: +d.poids }))
-    .filter(d => d.date && Number.isFinite(d.poids) && d.poids > 0);
-  save(STORAGE_KEY, state.data);
-  // settings -> inputs
-  tailleInput.value = state.settings.tailleCm ?? '';
-  maWindowInput.value = state.settings.maWindow ?? 7;
-  updateLogoUI();
-  refreshViewsOnly();
-}
+  /* ---------- Refresh & init ---------- */
+  function renderAll(){ renderKPIs(); renderTable(); renderListSimple(); renderChart(); updateSortHeaders(); }
+  function refreshViewsOnly(){ renderAll(); }
+  function refreshAll(){
+    state.data = state.data
+      .map(d=>({ id: d.id || `${Date.now()}-${Math.random()}`, date:d.date, time:(d.time||'').slice(0,5), poids:+d.poids }))
+      .filter(d=> d.date && Number.isFinite(d.poids) && d.poids>0);
+    save(STORAGE_KEY,state.data);
+    tailleInput.value = state.settings.tailleCm ?? '';
+    maWindowInput.value = state.settings.maWindow ?? 7;
+    renderAll();
+  }
 
-(function init(){
-  const now = new Date();
-  const todayFR = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
-  todayStrEl.textContent = todayFR;
-  if (aboutTodayEl) aboutTodayEl.textContent = todayFR;
-
-  versionEls.forEach(el => el && (el.textContent = VERSION));
-  if (!dateInput.value) dateInput.value = toISODate(now);
+  const now=new Date();
+  const todayFR=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  todayStrEl.textContent=todayFR; if(aboutTodayEl) aboutTodayEl.textContent=todayFR;
+  versionEls.forEach(el=>el&&(el.textContent=VERSION));
+  if(!dateInput.value) dateInput.value=toISODate(now);
 
   refreshAll();
-})();
-</script>
-<script>
-/* Gestion du logo (corrigé pour ton en-tête) */
-(function () {
-  const KEY = 'kilosport.logo.dataurl';
-  const img = document.getElementById('logoImg');
-  const initials = document.querySelector('#logoBox .initials');
-  const file = document.getElementById('logoFile');
-  const btnApply = document.getElementById('btnApplyLogo');
-  const btnDelete = document.getElementById('btnDeleteLogo');
-  if (!img || !initials || !file || !btnApply || !btnDelete) return;
-
-  function render(src) {
-    if (src) {
-      img.src = src;
-      img.style.display = 'block';
-      initials.style.display = 'none';
-    } else {
-      img.removeAttribute('src');
-      img.style.display = 'none';
-      initials.style.display = 'inline';
-    }
-  }
-
-  // Restaurer le logo mémorisé
-  try { render(localStorage.getItem(KEY)); } catch(e) { render(null); }
-
-  // Lecture du fichier image
-  function applyFromFile() {
-    const f = file.files && file.files[0];
-    if (!f) { alert('Choisis d’abord une image.'); return; }
-    const r = new FileReader();
-    r.onload = () => {
-      const dataUrl = r.result;
-      render(dataUrl);
-      try { localStorage.setItem(KEY, dataUrl); } catch(e) {}
-    };
-    r.readAsDataURL(f); // DataURL = compatible iOS
-  }
-
-  // Événements
-  btnApply.addEventListener('click', applyFromFile);
-  file.addEventListener('change', () => { if (file.files && file.files[0]) applyFromFile(); });
-  btnDelete.addEventListener('click', () => {
-    try { localStorage.removeItem(KEY); } catch(e) {}
-    render(null);
-    file.value = '';
-  });
-})();
-</script>
-<script>
-/* KiloSport — Correctif logo iOS (universel, design inchangé) */
-(function () {
-  const KEY='kilosport.logo.dataurl';
-
-  // — Trouve les éléments possibles sans supposer des IDs fixes
-  const img = document.querySelector('#logoImg, #logoTop, header img[id*="logo"]');
-  const initials = document.querySelector('#logoFallback, #logoBox .initials, header .initials, header [data-initials]');
-  const file = document.querySelector('#logoFile, input[type="file"][id*="logo"]');
-  const btnApply = document.querySelector('#btnApplyLogo, button[id*="Apply"][id*="Logo"], button[id*="Appliquer"][id*="Logo"]');
-  const btnDelete = document.querySelector('#btnDeleteLogo, button[id*="Delete"][id*="Logo"], button[id*="Supprimer"][id*="Logo"]');
-
-  if(!img || !initials || !file){
-    // Indice visuel (discret) pour diagnostiquer sans casser la page
-    var tip=document.createElement('div');
-    tip.textContent='Logo: éléments introuvables ('+
-      (img?'':'img ') + (initials?'':'initials ') + (file?'':'file ')+')';
-    tip.style.cssText='position:fixed;bottom:8px;left:8px;max-width:80vw;background:#fff4dd;border:1px solid #e7c552;padding:6px 8px;border-radius:8px;font:12px ui-monospace,monospace;color:#5a450f;z-index:99999';
-    document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(tip));
-    return;
-  }
-
-  function render(src){
-    if(src){
-      if(img.style) { img.style.display='block'; }
-      img.src = src;
-      if(initials && initials.style) initials.style.display='none';
-    }else{
-      img.removeAttribute('src');
-      if(img.style) img.style.display='none';
-      if(initials && initials.style) initials.style.display='';
-    }
-  }
-
-  // Au chargement : restaurer
-  try { render(localStorage.getItem(KEY)); } catch(_) { render(null); }
-
-  // Lecture fichier -> DataURL (clé iOS)
-  function applyFromFile(){
-    const f = file.files && file.files[0];
-    if(!f){ alert('Choisis d’abord une image.'); return; }
-    const r = new FileReader();
-    r.onload = function(){ 
-      const dataUrl = r.result;
-      render(dataUrl);
-      try { localStorage.setItem(KEY, dataUrl); } catch(_) {}
-    };
-    r.readAsDataURL(f);
-  }
-
-  // Événements (fonctionne avec ou sans bouton “Appliquer”)
-  if(btnApply) btnApply.addEventListener('click', applyFromFile);
-  file.addEventListener('change', ()=>{ if(file.files && file.files[0]) applyFromFile(); });
-  if(btnDelete){
-    btnDelete.addEventListener('click', ()=>{
-      try { localStorage.removeItem(KEY); } catch(_) {}
-      render(null);
-      file.value='';
-    });
-  }
-})();
+});
 </script>
 </body>
 </html>
