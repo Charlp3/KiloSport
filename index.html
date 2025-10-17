@@ -165,7 +165,6 @@
               <button type="submit" class="btn">Ajouter</button>
               <button type="button" id="btnClearAll" class="btn danger">Tout effacer</button>
               <button type="button" id="btnToday" class="btn secondary small">Maintenant</button>
-              <button type="button" id="btnResetZoom" class="btn secondary small">Réinitialiser le zoom</button>
               <span class="note">Astuce : molette/drag pour zoomer, double-clic pour zoom avant.</span>
             </div>
           </form>
@@ -282,7 +281,7 @@
   </div>
 
 <script>
-/* ===== v2.2.0 — logo permanent — Exports OK — Fix clics Éditer/Supprimer ===== */
+/* ===== v2.2.0 — Cases à cocher réactives — Bouton reset zoom supprimé ===== */
 window.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY='kilosport-data-v22';
   const SETTINGS_KEY='kilosport-settings-v22';
@@ -308,7 +307,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const todayStrEl=$('#todayStr'), aboutTodayEl=$('#aboutToday');
   const versionEls=[$('#version'),$('#aboutVersion')];
   const addForm=$('#addForm'), dateInput=$('#date'), timeInput=$('#time'), poidsInput=$('#poids');
-  const btnToday=$('#btnToday'), btnResetZoom=$('#btnResetZoom');
+  const btnToday=$('#btnToday');
   const toggleMA=$('#toggleMA'), toggleLR=$('#toggleLR'), toggleBMI=$('#toggleBMI');
   const kpiLast=$('#kpi-last'), kpiDelta=$('#kpi-delta'), kpiBMI=$('#kpi-bmi'), kpiTrend=$('#kpi-trend');
   const tbody=$('#tbody'), listSimple=$('#listSimple');
@@ -388,6 +387,7 @@ window.addEventListener('DOMContentLoaded', () => {
   /* ---------- Graphique ---------- */
   function movingAverage(values, w=7){ w=Math.max(2,+w||7); const out=[]; let sum=0, q=[]; for(let i=0;i<values.length;i++){ q.push(values[i]); sum+=values[i]; if(q.length>w) sum-=q.shift(); out.push(+(sum/q.length).toFixed(2)); } return out; }
   function linearRegression(y){ if(y.length<2) return []; const n=y.length,xs=[...Array(n).keys()]; let sx=0,sy=0,sxy=0,sxx=0; for(let i=0;i<n;i++){const x=xs[i],v=y[i]; sx+=x; sy+=v; sxy+=x*v; sxx+=x*x; } const d=n*sxx-sx*sx; if(!d) return []; const a=(n*sxy-sx*sy)/d, b=(sy-a*sx)/n; return xs.map(x=>+(b+a*x).toFixed(2)); }
+
   function buildChartData(){
     const rows=filterByRange(state.data.slice()).sort((a,b)=>tsFrom(a.date,a.time||'')-tsFrom(b.date,b.time||''));
     const labels=rows.map(r=>r.time?`${fmtFR(r.date)} ${r.time}`:fmtFR(r.date));
@@ -398,6 +398,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if(toggleBMI.checked && (state.settings.tailleCm??0)>0){ const bmi=rows.map(r=>computeBMI(r.poids,state.settings.tailleCm)); ds.push({label:'IMC',data:bmi,yAxisID:'y1',borderWidth:2,tension:.25,borderColor:'#f59e0b',pointRadius:2}); }
     return {labels,datasets:ds};
   }
+
   function renderChart(){
     const {labels,datasets}=buildChartData();
     const cfg={type:'line',data:{labels,datasets},options:{
@@ -408,8 +409,13 @@ window.addEventListener('DOMContentLoaded', () => {
               y1:{position:'right',title:{display:true,text:'IMC',color:'#5a450f'},grid:{drawOnChartArea:false},ticks:{color:'#5a450f'},min:10,max:40}}
     }};
     const ctx=document.getElementById('chart').getContext('2d');
-    if(state.chart){ state.chart.data=cfg.data; state.chart.options=cfg.options; state.chart.update(); }
-    else{ state.chart=new Chart(ctx,cfg); }
+    if(state.chart){
+      state.chart.data=cfg.data;
+      state.chart.options=cfg.options;
+      state.chart.update();
+    } else {
+      state.chart=new Chart(ctx,cfg);
+    }
   }
 
   /* ---------- Tableau & Liste ---------- */
@@ -431,7 +437,6 @@ window.addEventListener('DOMContentLoaded', () => {
           <button class="btn small danger" data-del="${r.id}" type="button">Suppr.</button>`}
         </td>`;
       if(!isGroup){
-        // Double-clic sur la ligne = éditer (raccourci)
         tr.addEventListener('dblclick',()=>startEdit(r.id));
       }
       tbody.appendChild(tr);
@@ -483,7 +488,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelectorAll('th.sortable').forEach(th=> th.addEventListener('click',()=>setSort(th.getAttribute('data-sort'))));
 
-  // ✅ DÉLÉGATION SUR TBODY + arrêt de propagation pour éviter le dblclick ligne
+  // Délégation + stopPropagation pour Éditer / Suppr.
   tbody.addEventListener('click',(e)=>{
     const btn=e.target.closest('button');
     if(!btn) return;
@@ -514,30 +519,35 @@ window.addEventListener('DOMContentLoaded', () => {
     poidsInput.value='';
     refreshAll();
   });
-  $('#btnToday').addEventListener('click',()=>{
+
+  btnToday.addEventListener('click',()=>{
     const now=new Date(); dateInput.value = toISODate(now); timeInput.value = toTimeHM(now);
   });
-  $('#btnResetZoom').addEventListener('click',()=>{ if(state.chart&&state.chart.resetZoom) state.chart.resetZoom(); });
-  $('#btnClearAll').addEventListener('click',()=>{ if(confirm('Supprimer toutes les mesures ?')){ state.data=[]; save(STORAGE_KEY,state.data); refreshAll(); } });
+
+  btnClearAll.addEventListener('click',()=>{
+    if(confirm('Supprimer toutes les mesures ?')){
+      state.data=[]; save(STORAGE_KEY,state.data); refreshAll();
+    }
+  });
 
   /* ---------- Export / Import ---------- */
-  $('#btnExportJson').addEventListener('click',()=>{
+  btnExportJson.addEventListener('click',()=>{
     const payload={ data:state.data, settings:state.settings, version:VERSION };
     const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
     downloadBlob(`kilosport-${toISODate(new Date())}.json`, blob);
   });
-  $('#btnExportTxt').addEventListener('click',()=>{
+  btnExportTxt.addEventListener('click',()=>{
     const rows=baseRowsSorted();
     const lines=rows.map(r=>`${fmtFR(r.date)}\t${r.time||''}\t${r.poids.toFixed(1)}`).join('\n');
     const blob=new Blob([lines],{type:'text/plain;charset=utf-8'});
     downloadBlob(`kilosport-${toISODate(new Date())}.txt`, blob);
   });
-  $('#btnCopyList').addEventListener('click',async()=>{
+  btnCopyList.addEventListener('click',async()=>{
     try{ await navigator.clipboard.writeText(listSimple.textContent.trim());
-      const b=$('#btnCopyList'); b.textContent='Copié ✔️'; setTimeout(()=>b.textContent='Copier la liste',1000);
+      const b=btnCopyList; b.textContent='Copié ✔️'; setTimeout(()=>b.textContent='Copier la liste',1000);
     }catch{ alert('Impossible de copier'); }
   });
-  $('#importFile').addEventListener('change',async(e)=>{
+  importFile.addEventListener('change',async(e)=>{
     const f=e.target.files[0]; if(!f) return;
     try{
       const obj=JSON.parse(await f.text());
@@ -554,7 +564,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }catch{ alert('Fichier invalide ❌'); }
   });
 
-  $('#settingsForm').addEventListener('submit',(e)=>{
+  settingsForm.addEventListener('submit',(e)=>{
     e.preventDefault();
     const tailleCm=parseInt(tailleInput.value,10);
     const maWindow=Math.max(2,Math.min(60,parseInt(maWindowInput.value,10)||7));
@@ -564,13 +574,21 @@ window.addEventListener('DOMContentLoaded', () => {
     state.settings.tailleCm=tailleCm;
     state.settings.maWindow=maWindow;
     save(SETTINGS_KEY,state.settings);
-    refreshAll();
+    // Si la fenêtre de MA change, on met à jour la courbe tout de suite
+    renderChart();
+    renderKPIs();
   });
-  $('#btnResetSettings').addEventListener('click',()=>{
+
+  document.getElementById('btnResetSettings').addEventListener('click',()=>{
     state.settings={tailleCm:null,maWindow:7}; save(SETTINGS_KEY,state.settings); refreshAll();
   });
-  $('#groupBy').addEventListener('change',()=>{ state.groupBy=groupBy.value; refreshViewsOnly(); });
-  $('#rangeFilter').addEventListener('change',()=>{ state.rangeFilter=rangeFilter.value; refreshViewsOnly(); });
+  groupBySelect.addEventListener('change',()=>{ state.groupBy=groupBySelect.value; renderTable(); renderListSimple(); renderChart(); });
+  rangeFilterSelect.addEventListener('change',()=>{ state.rangeFilter=rangeFilterSelect.value; renderTable(); renderListSimple(); renderChart(); });
+
+  // ✅ Cases à cocher -> mise à jour immédiate du graphique
+  toggleMA.addEventListener('change', renderChart);
+  toggleLR.addEventListener('change', renderChart);
+  toggleBMI.addEventListener('change', renderChart);
 
   /* ---------- Refresh & init ---------- */
   function renderAll(){ renderKPIs(); renderTable(); renderListSimple(); renderChart(); updateSortHeaders(); }
